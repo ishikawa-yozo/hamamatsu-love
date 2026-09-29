@@ -1,0 +1,1066 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>浜松愛♡検定</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ffa500 50%, #ff6b6b 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 620px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        /* ===== タイトル画面 ===== */
+        #start-screen { text-align: center; }
+
+        .title-emoji { font-size: 60px; margin-bottom: 10px; }
+
+        .title-main {
+            font-size: 32px;
+            font-weight: bold;
+            color: #e83e3e;
+            margin-bottom: 5px;
+        }
+
+        .title-sub { font-size: 16px; color: #666; margin-bottom: 20px; }
+
+        .title-description {
+            background: #fff8f0;
+            border: 2px solid #ffa500;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: left;
+            font-size: 14px;
+            line-height: 1.8;
+            color: #444;
+        }
+
+        .title-description h3 {
+            color: #e83e3e;
+            font-size: 16px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .rule-item {
+            display: flex;
+            align-items: flex-start;
+            margin: 6px 0;
+        }
+
+        .rule-icon { margin-right: 8px; flex-shrink: 0; }
+
+        /* ===== ボタン共通 ===== */
+        .btn-start {
+            background: linear-gradient(135deg, #e83e3e, #ffa500);
+            color: white;
+            border: none;
+            padding: 16px 50px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s;
+            box-shadow: 0 5px 20px rgba(232,62,62,0.4);
+            width: 100%;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(232,62,62,0.5);
+        }
+
+        /* ===== 問題画面 ===== */
+        #quiz-screen { display: none; }
+
+        .progress-area {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .question-num { font-size: 14px; color: #888; font-weight: bold; }
+        .score-display { font-size: 14px; color: #e83e3e; font-weight: bold; }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #eee;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #e83e3e, #ffa500);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+
+        .question-box {
+            background: #fff8f0;
+            border-left: 5px solid #ffa500;
+            border-radius: 0 12px 12px 0;
+            padding: 20px;
+            margin-bottom: 25px;
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            line-height: 1.6;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+        }
+
+        .choices { display: flex; flex-direction: column; gap: 12px; }
+
+        .choice-btn {
+            background: #f8f8f8;
+            border: 2px solid #ddd;
+            border-radius: 12px;
+            padding: 15px 20px;
+            font-size: 16px;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s;
+            color: #333;
+            display: flex;
+            align-items: center;
+        }
+
+        .choice-btn:hover:not(:disabled) {
+            background: #fff0f0;
+            border-color: #e83e3e;
+            transform: translateX(5px);
+        }
+
+        .choice-label {
+            background: #e83e3e;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            margin-right: 12px;
+            flex-shrink: 0;
+        }
+
+        .choice-btn.correct { background: #d4edda; border-color: #28a745; }
+        .choice-btn.correct .choice-label { background: #28a745; }
+        .choice-btn.wrong { background: #f8d7da; border-color: #dc3545; }
+        .choice-btn.wrong .choice-label { background: #dc3545; }
+        .choice-btn.show-answer { background: #d4edda; border-color: #28a745; opacity: 0.8; }
+        .choice-btn.show-answer .choice-label { background: #28a745; }
+        .choice-btn:disabled { cursor: not-allowed; }
+
+        /* 解説 */
+        .explanation-box {
+            display: none;
+            background: #e8f4fd;
+            border: 2px solid #2196F3;
+            border-radius: 12px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #444;
+            line-height: 1.7;
+        }
+
+        .explanation-box.show { display: block; }
+        .explanation-title { font-weight: bold; color: #2196F3; margin-bottom: 5px; }
+
+        .result-icon { text-align: center; font-size: 40px; margin-top: 15px; display: none; }
+        .result-icon.show { display: block; }
+
+        .btn-next {
+            display: none;
+            background: linear-gradient(135deg, #333, #555);
+            color: white;
+            border: none;
+            padding: 14px 30px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .btn-next:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+        .btn-next.show { display: block; }
+
+        /* ===== 結果画面 ===== */
+        #result-screen { display: none; text-align: center; }
+
+        .score-circle {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 20px auto;
+            font-weight: bold;
+        }
+
+        .score-circle.pass {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            box-shadow: 0 10px 30px rgba(40,167,69,0.4);
+        }
+
+        .score-circle.fail {
+            background: linear-gradient(135deg, #dc3545, #ff6b6b);
+            color: white;
+            box-shadow: 0 10px 30px rgba(220,53,69,0.4);
+        }
+
+        .score-number { font-size: 48px; line-height: 1; }
+        .score-label { font-size: 16px; }
+
+        /* 認定証 */
+        .certificate {
+            background: linear-gradient(135deg, #fffde7, #fff9c4);
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            position: relative;
+        }
+
+        .certificate-title {
+            font-size: 13px;
+            color: #888;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+        }
+
+        .certificate-main {
+            font-size: 20px;
+            font-weight: bold;
+            color: #e83e3e;
+            line-height: 1.8;
+            margin: 10px 0;
+        }
+
+        .certificate-seal { font-size: 50px; margin: 10px 0; }
+        .certificate-date { font-size: 13px; color: #888; margin-top: 10px; }
+
+        .fail-message {
+            background: #fff0f0;
+            border: 2px solid #ffcccc;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            color: #666;
+            line-height: 1.8;
+        }
+
+        /* 答え一覧 */
+        .answer-review { text-align: left; margin: 20px 0; }
+
+        .answer-review h3 {
+            font-size: 16px;
+            color: #555;
+            margin-bottom: 12px;
+            border-bottom: 2px solid #eee;
+            padding-bottom: 8px;
+        }
+
+        .answer-item {
+            display: flex;
+            align-items: flex-start;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 13px;
+        }
+
+        .answer-mark {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: bold;
+            flex-shrink: 0;
+            margin-right: 10px;
+            margin-top: 2px;
+        }
+
+        .answer-mark.correct { background: #28a745; color: white; }
+        .answer-mark.wrong { background: #dc3545; color: white; }
+
+        .answer-text { flex: 1; color: #444; line-height: 1.5; }
+        .answer-correct-text { color: #28a745; font-size: 12px; }
+
+        .btn-group { display: flex; gap: 12px; margin-top: 20px; }
+
+        .btn-retry {
+            flex: 1;
+            background: linear-gradient(135deg, #e83e3e, #ffa500);
+            color: white;
+            border: none;
+            padding: 14px;
+            font-size: 15px;
+            font-weight: bold;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-retry:hover { transform: translateY(-2px); }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .fade-in { animation: fadeIn 0.4s ease forwards; }
+
+        @media (max-width: 480px) {
+            .container { padding: 20px 15px; }
+            .title-main { font-size: 26px; }
+            .question-box { font-size: 15px; }
+            .choice-btn { font-size: 14px; padding: 12px 15px; }
+            .btn-group { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <!-- タイトル画面 -->
+    <div id="start-screen">
+        <div class="title-emoji">🏯🎏🎸</div>
+        <div class="title-main">浜松愛♡検定</div>
+        <div class="title-sub">〜 あなたの浜松愛を試そう！〜</div>
+        <div class="title-description">
+            <h3>📋 検定ルール</h3>
+            <div class="rule-item"><span class="rule-icon">🎯</span><span>100問の中からランダムに <strong>10問</strong> 出題</span></div>
+            <div class="rule-item"><span class="rule-icon">📝</span><span>各問題は <strong>3択</strong> 形式</span></div>
+            <div class="rule-item"><span class="rule-icon">✅</span><span><strong>8問以上正解（正解率80%）</strong> で合格！</span></div>
+            <div class="rule-item"><span class="rule-icon">🏆</span><span>合格すると <strong>浜松愛♡名誉市民</strong> に認定！</span></div>
+            <div class="rule-item"><span class="rule-icon">📍</span><span>歴史・グルメ・産業・文化など幅広く出題</span></div>
+        </div>
+        <button class="btn-start" onclick="startQuiz()">🎌 検定スタート！</button>
+    </div>
+
+    <!-- 問題画面 -->
+    <div id="quiz-screen">
+        <div class="progress-area">
+            <div class="question-num" id="question-num">第 1 問 / 全 10 問</div>
+            <div class="score-display" id="score-display">正解: 0問</div>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="question-box" id="question-text"></div>
+        <div class="choices" id="choices"></div>
+        <div class="result-icon" id="result-icon"></div>
+        <div class="explanation-box" id="explanation-box">
+            <div class="explanation-title">💡 解説</div>
+            <div id="explanation-text"></div>
+        </div>
+        <button class="btn-next" id="btn-next" onclick="nextQuestion()">次の問題へ →</button>
+    </div>
+
+    <!-- 結果画面 -->
+    <div id="result-screen">
+        <div id="result-content"></div>
+    </div>
+
+</div>
+
+<script>
+// =============================================
+// 問題データ 100問
+// =============================================
+const allQuestions = [
+
+  // ── 地理・基本情報（10問）──
+  {q:"浜松市が属する都道府県はどこですか？",
+   choices:["愛知県","静岡県","長野県"],answer:1,
+   explanation:"浜松市は静岡県西部に位置する政令指定都市です。"},
+
+  {q:"浜松市内にある有名な湖は何ですか？",
+   choices:["諏訪湖","浜名湖","天竜湖"],answer:1,
+   explanation:"浜名湖は静岡県西部の汽水湖で、ウナギの養殖で有名です。"},
+
+  {q:"浜松市を流れる代表的な川は何ですか？",
+   choices:["大井川","天竜川","富士川"],answer:1,
+   explanation:"天竜川は長野県の諏訪湖を源に、浜松市を通って遠州灘に注ぐ一級河川です。"},
+
+  {q:"浜松市の面積は政令指定都市の中でどのような特徴がありますか？",
+   choices:["最小","最大","3番目"],answer:1,
+   explanation:"浜松市の面積は約1,558㎢で、政令指定都市の中で最大の面積を誇ります。"},
+
+  {q:"浜松市が政令指定都市に移行したのはいつですか？",
+   choices:["2005年","2007年","2010年"],answer:1,
+   explanation:"浜松市は2007年（平成19年）4月1日に政令指定都市に移行しました。"},
+
+  {q:"浜松市の市の花は何ですか？",
+   choices:["サクラ","ツツジ","カキツバタ"],answer:1,
+   explanation:"浜松市の市の花はツツジです。市内各地でツツジの花を見ることができます。"},
+
+  {q:"浜松市の市の木は何ですか？",
+   choices:["マツ","クスノキ","スギ"],answer:1,
+   explanation:"浜松市の市の木はクスノキ（楠）です。"},
+
+  {q:"浜松市の市の鳥は何ですか？",
+   choices:["ウグイス","ヒバリ","カモメ"],answer:1,
+   explanation:"浜松市の市の鳥はヒバリです。遠州の広大な平野で見られる鳥です。"},
+
+  {q:"浜松市は静岡県の何部に位置していますか？",
+   choices:["東部","中部","西部"],answer:2,
+   explanation:"浜松市は静岡県の最西部に位置し、愛知県と隣接しています。"},
+
+  {q:"浜名湖はどんな種類の湖ですか？",
+   choices:["淡水湖","汽水湖","塩水湖"],answer:1,
+   explanation:"浜名湖は海とつながった汽水湖です。1498年の明応地震で海とつながりました。"},
+
+  // ── 歴史（10問）──
+  {q:"浜松城を拠点とした有名な戦国武将は誰ですか？",
+   choices:["武田信玄","徳川家康","今川義元"],answer:1,
+   explanation:"徳川家康は浜松城を拠点として遠江を支配しました。浜松城は「出世城」とも呼ばれます。"},
+
+  {q:"徳川家康が三方ヶ原で大敗した合戦の相手は誰ですか？",
+   choices:["織田信長","今川氏真","武田信玄"],answer:2,
+   explanation:"1572年の三方ヶ原の戦いで、家康は武田信玄の軍勢に大敗しました。"},
+
+  {q:"浜松城の別名は何ですか？",
+   choices:["白鷺城","出世城","浮城"],answer:1,
+   explanation:"浜松城は「出世城」と呼ばれます。城主の多くが後に出世したことに由来します。"},
+
+  {q:"旧浜松市が属していた令制国はどれですか？",
+   choices:["駿河国","遠江国","三河国"],answer:1,
+   explanation:"現在の浜松市域は「遠江国（とおとうみのくに）」に属していました。"},
+
+  {q:"家康が敗戦の戒めとして描かせたとされる肖像画の通称は？",
+   choices:["しかみ像","泣き像","恥じらい像"],answer:0,
+   explanation:"家康は三方ヶ原の敗戦の反省のため「しかみ像」を描かせたとされています。"},
+
+  {q:"徳川家康が浜松城に入った年はいつですか？",
+   choices:["1560年","1570年","1580年"],answer:1,
+   explanation:"家康は1570年（元亀元年）に岡崎城から浜松城に移り、約17年間本拠地としました。"},
+
+  {q:"東海道五十三次の宿場として浜松に置かれた宿はどれですか？",
+   choices:["浜松宿","袋井宿","見附宿"],answer:0,
+   explanation:"東海道の宿場「浜松宿」は旅人で賑わう重要な宿場町として栄えました。"},
+
+  {q:"徳川家康の幼名は何ですか？",
+   choices:["竹千代","鶴千代","松千代"],answer:0,
+   explanation:"家康の幼名は「竹千代」で、幼少期は今川氏の人質として過ごしました。"},
+
+  {q:"浜松市内にある井伊家の菩提寺として有名な寺は？",
+   choices:["方広寺","蓮華寺","龍潭寺"],answer:2,
+   explanation:"龍潭寺（りょうたんじ）は井伊家の菩提寺で、美しい庭園でも有名です。"},
+
+  {q:"浜名湖が海とつながったきっかけは何ですか？",
+   choices:["人工的な工事","大地震と津波","大雨による洪水"],answer:1,
+   explanation:"1498年の明応地震による津波で今切口が開き、浜名湖は海とつながりました。"},
+
+  // ── 産業・企業（10問）──
+  {q:"浜松市に本社を置く世界的な楽器メーカーはどれですか？",
+   choices:["ヤマハ株式会社","ソニー株式会社","パナソニック"],answer:0,
+   explanation:"ヤマハ株式会社は浜松市に本社を置く世界最大の総合楽器メーカーで、1887年創業です。"},
+
+  {q:"浜松市に本社を置く世界的なピアノメーカーはどれですか？",
+   choices:["スタインウェイ","河合楽器製作所","ベーゼンドルファー"],answer:1,
+   explanation:"河合楽器製作所（KAWAI）は浜松市に本社を置く世界的なピアノメーカーです。"},
+
+  {q:"ヤマハの創業者は誰ですか？",
+   choices:["山葉寅楠","本田宗一郎","豊田佐吉"],answer:0,
+   explanation:"山葉寅楠は1887年にオルガン製造を始め、現在のヤマハの礎を築きました。"},
+
+  {q:"ホンダ（本田技研工業）の創業者は誰ですか？",
+   choices:["豊田喜一郎","本田宗一郎","松下幸之助"],answer:1,
+   explanation:"本田宗一郎は浜松市（旧・光明村）出身で、ホンダを世界的な企業に育て上げました。"},
+
+  {q:"浜松が「楽器の街」として発展するきっかけとなった楽器は何ですか？",
+   choices:["ピアノ","オルガン","バイオリン"],answer:1,
+   explanation:"山葉寅楠がオルガン修理をきっかけに製造を始めたことが、浜松楽器産業の発祥です。"},
+
+  {q:"浜松市に本社を置く自動車・バイクメーカーはどれですか？",
+   choices:["スズキ株式会社","トヨタ自動車","日産自動車"],answer:0,
+   explanation:"スズキ株式会社は浜松市高塚町に本社を置く、世界的な自動車・バイクメーカーです。"},
+
+  {q:"スズキ株式会社はもともとどんな製品を製造していましたか？",
+   choices:["自転車","織機（おりき）","農機具"],answer:1,
+   explanation:"スズキは1909年に鈴木式織機製作所として創業し、後に自動車・バイク製造に転換しました。"},
+
+  {q:"浜松市に拠点を持つ光技術関連企業として有名なのはどれですか？",
+   choices:["浜松ホトニクス","ニコン","キヤノン"],answer:0,
+   explanation:"浜松ホトニクスは光電子技術で世界トップクラスの企業で、浜松市に本社を置きます。"},
+
+  {q:"河合楽器製作所の創業者は誰ですか？",
+   choices:["河合小市","河合寅次郎","河合三郎"],answer:0,
+   explanation:"河合小市が1927年に河合楽器製作所を創業しました。ヤマハで技術を磨いた後に独立しました。"},
+
+  {q:"浜松市が「やらまいか精神」で知られる言葉の意味は何ですか？",
+   choices:["やめておこう","やってみよう","やりすぎだ"],answer:1,
+   explanation:"「やらまいか」は遠州弁で「やってみよう」という積極的な精神を表す浜松を象徴する言葉です。"},
+
+  // ── グルメ・食文化（10問）──
+  {q:"浜松を代表するB級グルメといえば何ですか？",
+   choices:["浜松餃子","浜松ラーメン","浜松寿司"],answer:0,
+   explanation:"浜松餃子は野菜たっぷり・もやし添えの円形盛りが特徴の全国的に有名なB級グルメです。"},
+
+  {q:"浜名湖の名産品として全国的に有名な食材は何ですか？",
+   choices:["マグロ","ウナギ","カキ"],answer:1,
+   explanation:"浜名湖のウナギは日本有数のブランドで、養殖の歴史も長く全国に知られています。"},
+
+  {q:"浜松餃子の見た目の特徴として正しいのはどれですか？",
+   choices:["円形に並べてもやしを添える","三角形に盛る","スープに浮かべる"],answer:0,
+   explanation:"浜松餃子は丸く並べて焼き、中央にもやしのナムルを添えるのが定番スタイルです。"},
+
+  {q:"浜松名物「うなぎパイ」を製造しているお菓子メーカーはどこですか？",
+   choices:["春華堂","たこ満","ヤタロー"],answer:0,
+   explanation:"うなぎパイは春華堂が製造する浜松を代表する銘菓です。"},
+
+  {q:"うなぎパイのキャッチコピーはどれですか？",
+   choices:["朝のお菓子","夜のお菓子","旅のお菓子"],answer:1,
+   explanation:"うなぎパイは「夜のお菓子」として有名です。家族団らんの夜に食べてほしいという意味です。"},
+
+  {q:"浜松市のシラス漁で有名な港はどこですか？",
+   choices:["舞阪港","雄踏港","新居港"],answer:0,
+   explanation:"舞阪港は浜名湖の出口に位置し、シラスの水揚げ量が多いことで知られています。"},
+
+  {q:"浜名湖周辺で養殖されている貝はどれですか？",
+   choices:["アワビ","カキ（牡蠣）","ホタテ"],answer:1,
+   explanation:"浜名湖ではカキ（牡蠣）の養殖が盛んで、地元の名産品として知られています。"},
+
+  {q:"遠州地方の郷土料理で、サツマイモを使ったお菓子として有名なのは？",
+   choices:["いもけんぴ","芋羊羹","安倍川もち"],answer:1,
+   explanation:"遠州地方ではサツマイモの栽培が盛んで、芋羊羹など芋を使ったお菓子が郷土の味です。"},
+
+  {q:"浜松餃子が有名になった理由の一つとして正しいのはどれですか？",
+   choices:["餃子消費量が全国上位を誇ったため","テレビドラマの舞台になったため","外国人シェフが考案したため"],answer:0,
+   explanation:"浜松市は餃子の消費量・購入額で長年全国トップクラスを誇り、全国的な知名度を得ました。"},
+
+  {q:"浜松周辺で収穫される農産物として有名なのはどれですか？",
+   choices:["リンゴ","ミカン・温室メロン","ブドウ"],answer:1,
+   explanation:"浜松周辺では温暖な気候を活かしたミカンや、温室メロンの栽培が盛んです。"},
+
+  // ── 観光・文化（10問）──
+  {q:"浜松市にある有名な砂丘の名前は何ですか？",
+   choices:["鳥取砂丘","中田島砂丘","南遠砂丘"],answer:1,
+   explanation:"中田島砂丘は天竜川が運んだ砂が堆積した砂丘で、浜松まつりの凧揚げ会場としても有名です。"},
+
+  {q:"浜松市にある楽器の博物館は何という名前ですか？",
+   choices:["浜松市楽器博物館","ヤマハ音楽ミュージアム","楽器の殿堂"],answer:0,
+   explanation:"浜松市楽器博物館は世界各地の楽器を展示する日本初の公立楽器博物館です。"},
+
+  {q:"浜松まつりは毎年何月に開催されますか？",
+   choices:["3月","5月","8月"],answer:1,
+   explanation:"浜松まつりは毎年5月3日〜5日のゴールデンウィークに開催されます。"},
+
+  {q:"浜松まつりのメインイベントの一つは何ですか？",
+   choices:["花火大会","凧揚げ合戦","流鏑馬"],answer:1,
+   explanation:"浜松まつりの凧揚げ合戦は中田島砂丘で行われ、各町自慢の大凧が大空に舞い上がります。"},
+
+  {q:"浜松まつりで凧揚げ合戦と並ぶもう一つのメインイベントは何ですか？",
+   choices:["御殿屋台の引き回し","神輿渡御","山車巡行"],answer:0,
+   explanation:"夜に行われる御殿屋台の引き回しは豪華絢爛な屋台が市内を練り歩く浜松まつりの風物詩です。"},
+
+  {q:"浜松市北部にある有名な寺で、秋の紅葉が美しい場所はどこですか？",
+   choices:["方広寺","龍潭寺","摩訶耶寺"],answer:0,
+   explanation:"方広寺（ほうこうじ）は天竜区にある臨済宗の名刹で、境内の紅葉が美しいことで有名です。"},
+
+  {q:"浜松市内にある動物園・植物園が一体となった施設は何ですか？",
+   choices:["浜松市動植物園","浜名湖ガーデンパーク","はままつフルーツパーク"],answer:0,
+   explanation:"浜松市動植物園は市内にある動物と植物を一緒に楽しめる施設です。"},
+
+  {q:"浜名湖沿いにあるテーマパークは何ですか？",
+   choices:["浜名湖パルパル","ラグーナテンボス","ナガシマスパーランド"],answer:0,
+   explanation:"浜名湖パルパルは浜名湖畔にある遊園地で、地元の人々に長く親しまれています。"},
+
+  {q:"浜松市で行われるオートレースの施設はどれですか？",
+   choices:["浜松オートレース場","浜名湖競艇場","遠州競馬場"],answer:0,
+   explanation:"浜松オートレース場はオートバイレースが楽しめる公営競技場で、浜松市内に位置します。"},
+
+  {q:"浜名湖で楽しめるレジャーとして有名なのはどれですか？",
+   choices:["スキー","ボート・釣り・サイクリング","スカイダイビング"],answer:1,
+   explanation:"浜名湖ではボートや釣り、湖畔サイクリングなど多彩なレジャーを楽しむことができます。"},
+
+  // ── 音楽・芸術（10問）──
+  {q:"浜松市が「音楽の都」として名乗りを上げているのはなぜですか？",
+   choices:["オーケストラが多いから","楽器産業が集積しているから","音楽学校が多いから"],answer:1,
+   explanation:"ヤマハ・河合楽器・ローランドなど世界的楽器メーカーが集積し、「楽器の街」として知られています。"},
+
+  {q:"浜松国際ピアノコンクールは何年ごとに開催されますか？",
+   choices:["毎年","2年ごと","3年ごと"],answer:2,
+   explanation:"浜松国際ピアノコンクールは3年ごとに開催される国際的なピアノコンクールです。"},
+
+  {q:"ヤマハが最初に製造した楽器は何ですか？",
+   choices:["ピアノ","オルガン","ギター"],answer:1,
+   explanation:"山葉寅楠がオルガンの修理をきっかけに1887年にオルガン製造を開始したのがヤマハの始まりです。"},
+
+  {q:"浜松市楽器博物館が開館したのはいつですか？",
+   choices:["1985年","1995年","2005年"],answer:1,
+   explanation:"浜松市楽器博物館は1995年（平成7年）に開館した日本初の公立楽器博物館です。"},
+
+  {q:"ヤマハが本社を置く浜松市の地区はどこですか？",
+   choices:["中区（なかく）","東区","西区"],answer:0,
+   explanation:"ヤマハ株式会社の本社は浜松市中区中沢町に位置しています。"},
+
+  {q:"浜松ゆかりの作曲家・音楽家として知られる人物は誰ですか？",
+   choices:["坂本龍一","本居長世","久石譲"],answer:1,
+   explanation:"本居長世（もとおりながよ）は「十五夜お月さん」などを作曲した浜松ゆかりの音楽家です。"},
+
+  {q:"ローランド株式会社が開発した革新的な電子楽器はどれですか？",
+   choices:["電子ピアノ（デジタルピアノ）","電子バイオリン","電子ハープ"],answer:0,
+   explanation:"ローランドは電子ピアノや電子ドラムなど革新的な電子楽器を多数生み出した浜松ゆかりの企業です。"},
+
+  {q:"浜松市で毎年開催される音楽イベントとして有名なのはどれですか？",
+   choices:["浜松国際ピアノコンクール","浜松ジャズウィーク","浜松野外音楽祭"],answer:0,
+   explanation:"浜松国際ピアノコンクールは若手ピアニストの登竜門として国際的に知られています。"},
+
+  {q:"ヤマハが楽器以外に手掛けている事業はどれですか？",
+   choices:["自動車","バイク（ヤマハ発動機）","飛行機"],answer:1,
+   explanation:"ヤマハ発動機はヤマハ株式会社から独立した企業で、バイクや船外機などを製造しています。"},
+
+  {q:"浜松市が「楽器の街」として世界に知られるきっかけになった万博はどれですか？",
+   choices:["1970年大阪万博","1900年パリ万博","1964年東京五輪"],answer:1,
+   explanation:"山葉寅楠が製造したオルガンが1900年のパリ万博で高評価を得て、浜松の楽器が世界に知られました。"},
+
+  // ── 自然・環境（10問）──
+  {q:"遠州地方に吹く有名な季節風は何と呼ばれますか？",
+   choices:["遠州のからっ風","浜松おろし","天竜風"],answer:0,
+   explanation:"「遠州のからっ風」は冬に北西から吹く乾いた強風で、遠州地方の気候の特徴です。"},
+
+  {q:"浜松市の北部に広がる天竜区の主な地形は何ですか？",
+   choices:["平野","山岳・森林地帯","砂漠"],answer:1,
+   explanation:"天竜区は南アルプスの麓に広がる山岳・森林地帯で、天竜川の上流域にあたります。"},
+
+  {q:"中田島砂丘はどこの川が運んだ砂が堆積してできましたか？",
+   choices:["大井川","天竜川","富士川"],answer:1,
+   explanation:"中田島砂丘は天竜川が運んだ砂が遠州灘沿岸に堆積してできた砂丘です。"},
+
+  {q:"浜名湖に生息する天然記念物的な生き物として有名なのは？",
+   choices:["スッポン","ウミウシ","ジュゴン"],answer:0,
+   explanation:"浜名湖ではスッポンの養殖も盛んで、天然スッポンも生息しています。"},
+
+  {q:"浜松市の気候の特徴として正しいのはどれですか？",
+   choices:["寒冷で雪が多い","温暖で年間日照時間が長い","梅雨が短く台風が少ない"],answer:1,
+   explanation:"浜松市は太平洋側気候で温暖、年間日照時間が全国でも上位に入る晴れが多い都市です。"},
+
+  {q:"天竜川の源流はどこですか？",
+   choices:["富士山","諏訪湖","八ヶ岳"],answer:1,
+   explanation:"天竜川は長野県の諏訪湖を源流とし、南下して静岡県を流れ遠州灘に注ぎます。"},
+
+  {q:"浜名湖で行われているマリンスポーツとして有名なのは？",
+   choices:["サーフィン","ウインドサーフィン・ボート","スキューバダイビング"],answer:1,
+   explanation:"浜名湖はウインドサーフィンやボートなどのマリンスポーツのメッカとして知られています。"},
+
+  {q:"浜松市の森林率（市域面積に占める森林の割合）はおよそどのくらいですか？",
+   choices:["約20%","約40%","約60%"],answer:2,
+   explanation:"浜松市は天竜区を中心に広大な森林を有し、市域の約60%が森林に覆われています。"},
+
+  {q:"浜名湖の周囲を一周するサイクリングコースの距離はおよそ何kmですか？",
+   choices:["約50km","約90km","約150km"],answer:1,
+   explanation:"浜名湖一周（通称・浜名湖いちにち）は約90kmで、サイクリストに人気のコースです。"},
+
+  {q:"浜松市内でウナギ漁・養殖が始まったのはいつ頃ですか？",
+   choices:["江戸時代末期〜明治時代","昭和30年代","平成以降"],answer:0,
+   explanation:"浜名湖のウナギ養殖は明治時代に始まり、現在も日本を代表するウナギの産地です。"},
+
+  // ── スポーツ（10問）──
+  {q:"浜松市を本拠地とするバスケットボールチームはどれですか？",
+   choices:["浜松・東三河フェニックス","静岡ブレイブサンダース","湖西バスケット"],answer:0,
+   explanation:"浜松・東三河フェニックスはBリーグに所属する、浜松市と愛知県東三河地区を本拠地とするチームです。"},
+
+  {q:"ヤマハ発動機のラグビーチームの名前は何ですか？",
+   choices:["ヤマハ発動機ジュビロ","ヤマハ発動機サンダース","ヤマハ発動機フェニックス"],answer:0,
+   explanation:"ヤマハ発動機ジュビロはジャパンラグビーリーグワンに所属する強豪チームで、日本一にも輝いた名門です。"},
+
+  {q:"浜松市に隣接する磐田市を本拠地とするJリーグのサッカーチームはどれですか？",
+   choices:["清水エスパルス","ジュビロ磐田","藤枝MYFC"],answer:1,
+   explanation:"ジュビロ磐田はJ1リーグに所属するチームで、浜松市民にも多くのファンがいる地元の人気チームです。"},
+
+  {q:"本田宗一郎が浜松で最初に開業した事業は何ですか？",
+   choices:["バイクの製造工場","自動車修理工場「アート商会」","ガソリンスタンド"],answer:1,
+   explanation:"本田宗一郎は浜松市内で自動車修理工場「アート商会浜松支店」を開業し、その後エンジン・バイク開発へと進みました。"},
+
+  {q:"浜松市を走る東海道新幹線の停車駅はどれですか？",
+   choices:["掛川駅","豊橋駅","浜松駅"],answer:2,
+   explanation:"浜松駅には東海道新幹線のひかり・こだまが停車し、東京・名古屋・大阪方面へのアクセス拠点となっています。"},
+
+  {q:"浜松市で開催される公営競技として正しいのはどれですか？",
+   choices:["競馬","競輪","オートレース"],answer:2,
+   explanation:"浜松オートレース場ではオートバイによるレースが定期的に開催され、浜松市の公営競技として長年親しまれています。"},
+
+  {q:"浜松まつりの凧揚げ合戦の会場となる有名な場所はどこですか？",
+   choices:["浜名湖畔","中田島砂丘","天竜川河川敷"],answer:1,
+   explanation:"浜松まつりの凧揚げ合戦は中田島砂丘で行われ、各町が糸を絡め合いながら競い合います。"},
+
+  {q:"浜名湖で盛んなマリンスポーツとして正しいのはどれですか？",
+   choices:["サーフィン","ウインドサーフィン・ジェットスキー","スキューバダイビング"],answer:1,
+   explanation:"浜名湖はウインドサーフィンやジェットスキーなどのマリンスポーツのメッカとして全国的に知られています。"},
+
+  {q:"浜松市出身のプロ野球選手として有名なのは誰ですか？",
+   choices:["長嶋茂雄","山内一弘","松坂大輔"],answer:1,
+   explanation:"山内一弘は浜松市出身の元プロ野球選手で、毎日・阪神・広島などで活躍した強打者です。"},
+
+  {q:"浜名湖を一周するサイクリングコースの距離はおよそ何kmですか？",
+   choices:["約40km","約90km","約150km"],answer:1,
+   explanation:"浜名湖一周（通称・浜名湖いちにち）は約90kmのコースで、全国各地からサイクリストが訪れる人気コースです。"},
+
+// ── 追加問題（20問）──
+  {q:"浜松市にある国の特別天然記念物に指定された場所はどれですか？",
+   choices:["中田島砂丘","秋葉山","佐鳴湖"],answer:0,
+   explanation:"中田島砂丘は国の天然記念物に指定されており、アカウミガメの産卵地としても知られています。"},
+
+  {q:"浜松市天竜区にある有名な鉄道路線はどれですか？",
+   choices:["天竜浜名湖鉄道","大井川鐵道","伊豆急行"],answer:0,
+   explanation:"天竜浜名湖鉄道（通称・天浜線）は浜松市と掛川市を結ぶローカル線で、多くの登録有形文化財の駅舎が残ります。"},
+
+  {q:"浜松市出身の歴史上の人物・井伊直虎はどのような人物ですか？",
+   choices:["江戸幕府の老中","戦国時代の女性領主","平安時代の歌人"],answer:1,
+   explanation:"井伊直虎は戦国時代に遠江国井伊谷（現在の浜松市北区）を治めた女性領主で、NHK大河ドラマにもなりました。"},
+
+  {q:"浜松市北区（現・浜名区）にある井伊谷はどのような場所ですか？",
+   choices:["ウナギの養殖地","井伊家発祥の地","徳川家康の生誕地"],answer:1,
+   explanation:"井伊谷は戦国大名・井伊家発祥の地で、井伊直虎や井伊直政ゆかりのスポットが多く残っています。"},
+
+  {q:"浜松市内を走るJR路線として正しいのはどれですか？",
+   choices:["JR中央本線","JR東海道本線","JR身延線"],answer:1,
+   explanation:"JR東海道本線が浜松市内を通り、浜松駅は東海道本線と新幹線が乗り入れる主要駅です。"},
+
+  {q:"浜松市にある佐鳴湖（さなるこ）はどのような湖ですか？",
+   choices:["海水湖","淡水の都市型湖沼","人工の貯水池"],answer:1,
+   explanation:"佐鳴湖は浜松市西区にある淡水の都市型湖沼で、市民の憩いの場として親しまれています。"},
+
+  {q:"浜松市の旧天竜市地域で盛んだった林業で運ばれた木材は主にどこへ向かいましたか？",
+   choices:["名古屋","東京・江戸","大阪・京都"],answer:1,
+   explanation:"天竜川を利用した筏流しで木材が運ばれ、江戸（東京）の建築材として重宝されました。"},
+
+  {q:"浜松市にゆかりのある戦国武将・井伊直政の兜の特徴として有名なのは？",
+   choices:["黄金の鯱がついた兜","真っ赤な甲冑と大きな角の兜","鉄砲を模した兜"],answer:1,
+   explanation:"井伊直政は「井伊の赤備え」として知られる真紅の甲冑と、大きな金の角飾りが特徴の兜で有名です。"},
+
+  {q:"浜松市で毎年開催される「浜松国際ピアノコンクール」の正式開始年はいつですか？",
+   choices:["1961年","1991年","2001年"],answer:1,
+   explanation:"浜松国際ピアノコンクールは1991年（平成3年）に第1回が開催され、3年ごとに行われる国際的なコンクールです。"},
+
+  {q:"浜松市にある「はままつフルーツパーク時之栖」で有名な体験は何ですか？",
+   choices:["果物の収穫体験","工場見学","陶芸体験"],answer:0,
+   explanation:"はままつフルーツパーク時之栖ではイチゴ・ミカン・ブドウなど季節の果物狩りが楽しめます。"},
+
+  {q:"浜松市の遠州地方に伝わる伝統工芸として有名なものはどれですか？",
+   choices:["遠州綿紬（めんつむぎ）","浜松焼き","浜名湖漆器"],answer:0,
+   explanation:"遠州綿紬は遠州地方に伝わる伝統的な織物で、かつて浜松周辺の綿織物産業を支えた工芸品です。"},
+
+  {q:"浜松市天竜区水窪（みさくぼ）地区で有名な祭りはどれですか？",
+   choices:["水窪大祭り","水窪の花祭り","天竜川祭り"],answer:1,
+   explanation:"水窪地区の花祭りは国の重要無形民俗文化財に指定された伝統的な神楽の一種です。"},
+
+  {q:"浜松駅前にある有名なシンボルモニュメントは何ですか？",
+   choices:["徳川家康の銅像","楽器をモチーフにしたオブジェ","凧をモチーフにした塔"],answer:0,
+   explanation:"浜松駅前には徳川家康の銅像が設置されており、浜松のシンボルとして市民・観光客に親しまれています。"},
+
+  {q:"浜松市の給食でも人気の郷土料理「芋汁」の主な材料はどれですか？",
+   choices:["じゃがいも","里芋","サツマイモ"],answer:2,
+   explanation:"遠州地方ではサツマイモを使った「芋汁」が郷土料理として親しまれており、学校給食にも登場します。"},
+
+  {q:"浜松市出身の人気ミュージシャン・グループとして有名なのはどれですか？",
+   choices:["サザンオールスターズ","TUBE（チューブ）","ゆず"],answer:1,
+   explanation:"TUBEは浜松市出身メンバーを含む人気バンドで「あー夏休み」などの夏をテーマにした楽曲で有名です。"},
+
+  {q:"浜松市で江戸時代に栄えた綿織物産業の産地ブランドは何ですか？",
+   choices:["遠州木綿","浜松シルク","天竜麻"],answer:0,
+   explanation:"遠州木綿は江戸時代から浜松・遠州地方で生産された綿織物で、全国に流通した名産品です。"},
+
+  {q:"浜松市内にある「浜松城公園」で毎年春に行われる有名なイベントは何ですか？",
+   choices:["梅まつり","桜まつり","菊まつり"],answer:1,
+   explanation:"浜松城公園では毎年春に桜まつりが開催され、桜の名所として多くの市民が花見を楽しみます。"},
+
+  {q:"浜松市の天竜川下りで有名な観光スポットはどこですか？",
+   choices:["龍山渓谷","かわね路","船明ダム湖"],answer:0,
+   explanation:"天竜川の龍山渓谷周辺では天竜川下りが楽しめる観光スポットとして知られています。"},
+
+  {q:"浜松市が推進する「音楽のまちづくり」政策の象徴的な施設はどれですか？",
+   choices:["アクトシティ浜松","浜松アリーナ","グランシップ"],answer:0,
+   explanation:"アクトシティ浜松は音楽ホールや展示施設を備えた複合文化施設で、浜松の音楽文化発信の拠点です。"},
+
+  {q:"浜松市にゆかりのある徳川四天王の一人で「井伊の赤備え」で知られる武将は誰ですか？",
+   choices:["酒井忠次","本多忠勝","井伊直政"],answer:2,
+   explanation:"井伊直政は浜松市（旧・引佐郡井伊谷）出身の武将で、徳川四天王の一人として「井伊の赤備え」で恐れられました。"}
+];
+
+// ===================================
+// クイズ動作ロジック
+// ===================================
+
+let currentQuestions = [];  // 出題する10問
+let currentIndex = 0;       // 現在の問題番号
+let score = 0;              // 正解数
+let userAnswers = [];       // ユーザーの回答記録
+
+// ── ランダムに10問選ぶ ──
+function getRandomQuestions(num) {
+    const shuffled = [...allQuestions].sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, num);
+}
+
+// ── クイズ開始 ──
+function startQuiz() {
+    currentQuestions = getRandomQuestions(10);
+    currentIndex = 0;
+    score = 0;
+    userAnswers = [];
+
+    document.getElementById('start-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'block';
+
+    showQuestion();
+}
+
+// ── 問題を表示 ──
+function showQuestion() {
+    const q = currentQuestions[currentIndex];
+
+    // 進捗バー更新
+    const progress = (currentIndex / 10) * 100;
+    document.getElementById('progress-fill').style.width = progress + '%';
+
+    // 問題番号・スコア更新
+    document.getElementById('question-num').textContent =
+        '第 ' + (currentIndex + 1) + ' 問 / 全 10 問';
+    document.getElementById('score-display').textContent =
+        '正解: ' + score + '問';
+
+    // 問題文
+    document.getElementById('question-text').textContent = q.q;
+
+    // 選択肢を生成
+    const choicesEl = document.getElementById('choices');
+    choicesEl.innerHTML = '';
+    const labels = ['A', 'B', 'C'];
+    q.choices.forEach(function(choice, index) {
+        const btn = document.createElement('button');
+        btn.className = 'choice-btn';
+        btn.innerHTML =
+            '<span class="choice-label">' + labels[index] + '</span>' + choice;
+        btn.onclick = function() { selectAnswer(index); };
+        choicesEl.appendChild(btn);
+    });
+
+    // 解説・結果アイコン・次へボタンをリセット
+    const expBox = document.getElementById('explanation-box');
+    expBox.classList.remove('show');
+    document.getElementById('explanation-text').textContent = '';
+
+    const resultIcon = document.getElementById('result-icon');
+    resultIcon.classList.remove('show');
+    resultIcon.textContent = '';
+
+    const btnNext = document.getElementById('btn-next');
+    btnNext.classList.remove('show');
+
+    // 最終問題は「次へ」→「結果を見る」に変更
+    if (currentIndex === 9) {
+        btnNext.textContent = '結果を見る 🏁';
+    } else {
+        btnNext.textContent = '次の問題へ →';
+    }
+}
+
+// ── 回答選択 ──
+function selectAnswer(selectedIndex) {
+    const q = currentQuestions[currentIndex];
+    const buttons = document.querySelectorAll('.choice-btn');
+
+    // ボタンを全て無効化
+    buttons.forEach(function(btn) {
+        btn.disabled = true;
+    });
+
+    const isCorrect = (selectedIndex === q.answer);
+
+    // 選んだボタンに正解・不正解のスタイル
+    if (isCorrect) {
+        buttons[selectedIndex].classList.add('correct');
+    } else {
+        buttons[selectedIndex].classList.add('wrong');
+        // 正解のボタンも表示
+        buttons[q.answer].classList.add('show-answer');
+    }
+
+    // 結果アイコン表示
+    const resultIcon = document.getElementById('result-icon');
+    resultIcon.classList.add('show');
+    if (isCorrect) {
+        resultIcon.textContent = '⭕ 正解！';
+        resultIcon.style.color = '#28a745';
+        score++;
+    } else {
+        resultIcon.textContent = '❌ 不正解…';
+        resultIcon.style.color = '#dc3545';
+    }
+
+    // 解説表示
+    document.getElementById('explanation-text').textContent = q.explanation;
+    document.getElementById('explanation-box').classList.add('show');
+
+    // 回答を記録
+    userAnswers.push({
+        question: q.q,
+        selected: selectedIndex,
+        correct: q.answer,
+        isCorrect: isCorrect,
+        correctText: q.choices[q.answer]
+    });
+
+    // 次へボタン表示
+    document.getElementById('btn-next').classList.add('show');
+
+    // スコア更新
+    document.getElementById('score-display').textContent =
+        '正解: ' + score + '問';
+}
+
+// ── 次の問題へ ──
+function nextQuestion() {
+    currentIndex++;
+    if (currentIndex >= 10) {
+        showResult();
+    } else {
+        showQuestion();
+    }
+}
+
+// ── 結果画面を表示 ──
+function showResult() {
+    document.getElementById('quiz-screen').style.display = 'none';
+    document.getElementById('result-screen').style.display = 'block';
+
+    const isPassed = score >= 8;
+    const today = new Date();
+    const dateStr = today.getFullYear() + '年' +
+        (today.getMonth() + 1) + '月' +
+        today.getDate() + '日';
+
+    // 答え一覧を生成
+    let reviewHTML = '<div class="answer-review"><h3>📋 回答一覧</h3>';
+    userAnswers.forEach(function(ans, i) {
+        const markClass = ans.isCorrect ? 'correct' : 'wrong';
+        const markText  = ans.isCorrect ? '○' : '×';
+        reviewHTML += '<div class="answer-item">';
+        reviewHTML += '<div class="answer-mark ' + markClass + '">' + markText + '</div>';
+        reviewHTML += '<div class="answer-text">';
+        reviewHTML += '<div>Q' + (i + 1) + '. ' + ans.question + '</div>';
+        if (!ans.isCorrect) {
+            reviewHTML += '<div class="answer-correct-text">✅ 正解: ' + ans.correctText + '</div>';
+        }
+        reviewHTML += '</div></div>';
+    });
+    reviewHTML += '</div>';
+
+    // 合格・不合格で表示内容を切り替え
+    let resultHTML = '';
+
+    if (isPassed) {
+        resultHTML = `
+        <div class="fade-in">
+            <div style="font-size:24px;font-weight:bold;color:#333;margin-bottom:10px;">
+                🎉 合格おめでとうございます！
+            </div>
+            <div class="score-circle pass">
+                <div class="score-number">${score}<span style="font-size:24px;">/10</span></div>
+                <div class="score-label">正解</div>
+            </div>
+            <div class="certificate">
+                <div class="certificate-title">認　定　証</div>
+                <div class="certificate-seal">🏯</div>
+                <div class="certificate-main">
+                    あなたを<br>
+                    浜松愛♡ある<br>
+                    名誉市民として認めます
+                </div>
+                <div style="font-size:13px;color:#666;margin-top:10px;">
+                    正解数: ${score} / 10問（正解率 ${score * 10}%）
+                </div>
+                <div class="certificate-date">認定日: ${dateStr}</div>
+                <div style="margin-top:10px;font-size:20px;">🎏🎸🎺</div>
+            </div>
+            ${reviewHTML}
+            <div class="btn-group">
+                <button class="btn-retry" onclick="startQuiz()">🔄 もう一度挑戦</button>
+                <button class="btn-retry" style="background:linear-gradient(135deg,#333,#555);"
+                    onclick="backToTop()">🏠 トップへ戻る</button>
+            </div>
+        </div>`;
+    } else {
+        resultHTML = `
+        <div class="fade-in">
+            <div style="font-size:24px;font-weight:bold;color:#333;margin-bottom:10px;">
+                結果発表
+            </div>
+            <div class="score-circle fail">
+                <div class="score-number">${score}<span style="font-size:24px;">/10</span></div>
+                <div class="score-label">正解</div>
+            </div>
+            <div class="fail-message">
+                <div style="font-size:18px;font-weight:bold;color:#e83e3e;margin-bottom:10px;">
+                    😢 残念！不合格です
+                </div>
+                <div>合格ライン: <strong>8問以上</strong></div>
+                <div>あなたの正解数: <strong>${score}問 / 10問</strong></div>
+                <div>正解率: <strong>${score * 10}%</strong></div>
+                <div style="margin-top:10px;">
+                    もう一度挑戦して、浜松愛♡名誉市民を目指しましょう！
+                </div>
+            </div>
+            ${reviewHTML}
+            <div class="btn-group">
+                <button class="btn-retry" onclick="startQuiz()">🔄 もう一度挑戦</button>
+                <button class="btn-retry" style="background:linear-gradient(135deg,#333,#555);"
+                    onclick="backToTop()">🏠 トップへ戻る</button>
+            </div>
+        </div>`;
+    }
+
+    document.getElementById('result-content').innerHTML = resultHTML;
+
+    // 画面トップへスクロール
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── トップへ戻る ──
+function backToTop() {
+    document.getElementById('result-screen').style.display = 'none';
+    document.getElementById('quiz-screen').style.display = 'none';
+    document.getElementById('start-screen').style.display = 'block';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+</script>
+</body>
+</html>
